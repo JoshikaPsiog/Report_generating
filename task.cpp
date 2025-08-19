@@ -5,6 +5,7 @@
 #include <random>
 #include <ctime>
 #include <iomanip>
+#include <bits/stdc++.h>
 using namespace std;
 
 void inputs();
@@ -18,22 +19,102 @@ struct Sale {
     int qty;
     double total;
 };
-
 bool compareByDate(const Sale &a, const Sale &b) {
-    return a.date < b.date; // YYYY/MM/DD format, so lexicographic sort works
+    return a.date < b.date;  
+}
+void sortRecords(vector<Sale> &records) {
+    sort(records.begin(), records.end(), compareByDate);
 }
 
+void generateReport() {
+    ifstream file("temp.csv");
+    if (!file) {
+        cerr << "Error: temp.csv not found!" << endl;
+        return;
+    }
+
+    map<string, vector<Sale>> salesByDate;
+    string line;
+
+    while (getline(file, line)) {
+        stringstream ss(line);
+        Sale s;
+        string priceStr, qtyStr, totalStr;
+
+        getline(ss, s.id, ',');
+        getline(ss, s.date, ',');
+        getline(ss, s.item, ',');
+        getline(ss, priceStr, ',');
+        getline(ss, qtyStr, ',');
+        getline(ss, totalStr, ',');
+
+        s.price = stod(priceStr);
+        s.qty = stoi(qtyStr);
+        s.total = stod(totalStr);
+
+        salesByDate[s.date].push_back(s);
+    }
+
+    file.close();
+
+    ofstream out("Report.txt");
+    if (!out) {
+        cerr << "Error creating Report.txt!" << endl;
+        return;
+    }
+
+    time_t now = time(0);
+tm *ltm = localtime(&now);
+char today[11];
+strftime(today, sizeof(today), "%Y-%m-%d", ltm);
+
+out << "Report Genrated Date " << today << "\n\n";
+    out << "Sales Report : Stationary Items Sold\n\n";
+    // cout << string(70, '-') << endl;
+    out << left << setw(18) << "Date"
+        << setw(15) << "SaleID"
+        << setw(20) << "ItemName"
+        << setw(12) << "Quantity"
+        << setw(12) << "Price"
+        << setw(15) << "SalesAmount" << "\n";
+    //  cout << string(70, '-') << endl;
+    double grandTotal = 0;
+
+    for (const auto& pair : salesByDate) {
+        const string& date = pair.first;
+        const vector<Sale>& sales = pair.second;
+
+        double subTotal = 0;
+
+        for (const Sale& s : sales) {
+            out << left << setw(18) << s.date
+                << setw(15) << s.id
+                << setw(20) << s.item
+                << setw(12) << s.qty
+                << setw(12) << fixed << setprecision(2) << s.price
+                << setw(15) << fixed << setprecision(2) << s.total << "\n";
+
+            subTotal += s.total;
+        }
+
+        // out << string(70, '-') << endl;
+        out << right << setw(85) << "Subtotal for " << date << " is : " << fixed << setprecision(2) << subTotal << "\n";
+        //  out << string(70, '-') << endl;
+        grandTotal += subTotal;
+    }
+    out << right << setw(85) << "Grand Total: " << fixed << setprecision(2) << grandTotal << "\n";
+    out.close();
+    cout << "Report generated successfully in Report.txt!\n";
+}
 void updateOrDelete() {
     string saleID;
     cout << "Enter unique Sale ID: ";
     cin >> saleID;
-
     ifstream in("sales.csv");
     if (!in) {
         cerr << "Error: sales.csv not found!" << endl;
         return;
     }
-
     vector<Sale> records;
     string line;
     bool found = false;
@@ -87,20 +168,15 @@ void updateOrDelete() {
     if (!found) {
         cout << "Sale ID " << saleID << " not found!" << endl;
         return;
-    }
-
-    // Sort by date
-    sort(records.begin(), records.end(), compareByDate);
-
-    // Write back to file
-    ofstream out("temp.csv");
+    }  
+    sortRecords(records);
+    ofstream out("temp.csv");  
     for (auto &s : records) {
         out << s.id << "," << s.date << "," << s.item << ","
             << s.price << "," << s.qty << "," << s.total << "\n";
     }
     out.close();
 }
-
 void view() {
     ifstream file("sales.csv");
     if (!file) {
@@ -179,9 +255,9 @@ void inputs()
     if (!isValidDateFormat(date))
     {
         cout << "invalid date";
+         view();
         return;
     }
-
     cout << "Enter Item Name: ";
     getline(cin, item_name);
     cout << "Enter Unit Price: ";
@@ -189,7 +265,6 @@ void inputs()
     cout << "Enter Item Quantity: ";
     cin >> item_quantity;
     cin.ignore();
-
     total = item_quantity * unit_Price;
       int sales_id = generateUniqueID();
 
@@ -229,14 +304,20 @@ void getdata()
     inputs();
 }
 
-int main()
-{
+int main() {
     char input;
     getdata();
-    cout<<"do you want to update or delete?"<<endl;
-    cin>>input;
-    if(input=='y'||input=='Y'){
+
+    cout << "Do you want to update or delete? (y/n): ";
+    cin >> input;
+    if (input == 'y' || input == 'Y') {
         updateOrDelete();
     }
-    // sorting();
+    cout << "Do you want to generate a report? (y/n): ";
+    cin >> input;
+    if (input == 'y' || input == 'Y') {
+        generateReport();
+    }
+    cout << "Thank you for purchasing!" << endl;
+    return 0;
 }
