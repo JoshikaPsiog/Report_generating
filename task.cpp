@@ -4,28 +4,110 @@
 #include <algorithm>
 #include <random>
 #include <ctime>
+#include <iomanip>
 using namespace std;
 
 void inputs();
 void view();
 bool isValidDateFormat(const string &date);
+vector<int> usedIDs; 
 
-vector<int> usedIDs;
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <iomanip>
-using namespace std;
+struct Sale {
+    string id, date, item;
+    double price;
+    int qty;
+    double total;
+};
+
+bool compareByDate(const Sale &a, const Sale &b) {
+    return a.date < b.date; // YYYY/MM/DD format, so lexicographic sort works
+}
+
+void updateOrDelete() {
+    string saleID;
+    cout << "Enter unique Sale ID: ";
+    cin >> saleID;
+
+    ifstream in("sales.csv");
+    if (!in) {
+        cerr << "Error: sales.csv not found!" << endl;
+        return;
+    }
+
+    vector<Sale> records;
+    string line;
+    bool found = false;
+
+    while (getline(in, line)) {
+        stringstream ss(line);
+        Sale s;
+        string priceStr, qtyStr, totalStr;
+
+        getline(ss, s.id, ',');
+        getline(ss, s.date, ',');
+        getline(ss, s.item, ',');
+        getline(ss, priceStr, ',');
+        getline(ss, qtyStr, ',');
+        getline(ss, totalStr, ',');
+
+        s.price = stod(priceStr);
+        s.qty = stoi(qtyStr);
+        s.total = stod(totalStr);
+
+        if (s.id == saleID) {
+            found = true;
+            cout << "Record found: " << line << endl;
+
+            char choice;
+            cout << "Do you want to (U)pdate or (D)elete this record? ";
+            cin >> choice;
+
+            if (choice == 'U' || choice == 'u') {
+                cout << "Enter Date (YYYY/MM/DD): ";
+                cin >> s.date;
+                cout << "Enter Item Name: ";
+                cin >> s.item;
+                cout << "Enter Unit Price: ";
+                cin >> s.price;
+                cout << "Enter Quantity: ";
+                cin >> s.qty;
+                s.total = s.price * s.qty;
+                cout << "Record updated successfully!" << endl;
+                records.push_back(s);
+            }
+            else if (choice == 'D' || choice == 'd') {
+                cout << "Record deleted successfully!" << endl;
+            }
+        } else {
+            records.push_back(s);
+        }
+    }
+    in.close();
+
+    if (!found) {
+        cout << "Sale ID " << saleID << " not found!" << endl;
+        return;
+    }
+
+    // Sort by date
+    sort(records.begin(), records.end(), compareByDate);
+
+    // Write back to file
+    ofstream out("temp.csv");
+    for (auto &s : records) {
+        out << s.id << "," << s.date << "," << s.item << ","
+            << s.price << "," << s.qty << "," << s.total << "\n";
+    }
+    out.close();
+}
+
 void view() {
     ifstream file("sales.csv");
     if (!file) {
         cerr << "Error: sales.csv not found!" << endl;
         return;
     }
-
     string line;
-
-    // Print Header
     cout << left << setw(10) << "Sale ID"
          << setw(12) << "Date"
          << setw(15) << "Item Name"
@@ -52,10 +134,8 @@ void view() {
              << setw(10) << quantity
              << setw(10) << total << endl;
     }
-
     file.close();
 }
-
 int generateUniqueID()
 {
     static random_device rd;
@@ -151,5 +231,12 @@ void getdata()
 
 int main()
 {
+    char input;
     getdata();
+    cout<<"do you want to update or delete?"<<endl;
+    cin>>input;
+    if(input=='y'||input=='Y'){
+        updateOrDelete();
+    }
+    // sorting();
 }
