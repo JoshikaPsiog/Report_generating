@@ -10,7 +10,8 @@
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "C:/msys64/mingw64/bin/gcc.exe"
+            "compilerPath": "C:/msys64/mingw64/bin/gcc.exe",
+            "cppStandard": "c++98"
         }
     ],
     "version": 4

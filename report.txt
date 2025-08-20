@@ -1,14 +1,14 @@
-Report Genrated Date 2025-08-19
+Report Genrated Date 2025-08-20
 
 Sales Report : Stationary Items Sold
 
 Date              SaleID         ItemName            Quantity    Price       SalesAmount    
 1990/10/01        4783           ink bottle          1           40.00       40.00          
                                                                         Subtotal for 1990/10/01 is : 40.00
+1997/01/01        7506           inkpen              2           40.00       80.00          
+                                                                        Subtotal for 1997/01/01 is : 80.00
 1998/02/02        3996           pen                 5           1.00        5.00           
                                                                         Subtotal for 1998/02/02 is : 5.00
-2000/04/04        5225           sketch              2           1.00        2.00           
-                                                                        Subtotal for 2000/04/04 is : 2.00
 2001/11/02        5932           eraser              3           2.00        6.00           
                                                                         Subtotal for 2001/11/02 is : 6.00
 2003/08/01        7620           pens                10          8.00        80.00          
@@ -23,6 +23,8 @@ Date              SaleID         ItemName            Quantity    Price       Sal
                                                                         Subtotal for 2005/05/01 is : 5.00
 2006/09/09        5277           glitter             2           30.00       60.00          
                                                                         Subtotal for 2006/09/09 is : 60.00
+2008/09/09        6362           colour pencils      2           20.00       40.00          
+                                                                        Subtotal for 2008/09/09 is : 40.00
 2009/10/10        7704           crayons             1           30.00       30.00          
                                                                         Subtotal for 2009/10/10 is : 30.00
 2025/03/01        7499           paint               2           80.00       160.00         
@@ -38,4 +40,4 @@ Date              SaleID         ItemName            Quantity    Price       Sal
                                                                         Subtotal for 2025/11/11 is : 15.00
 2025/20/20        9120           pencil              3           2.00        6.00           
                                                                         Subtotal for 2025/20/20 is : 6.00
-                                                                        Grand Total: 701.00
+                                                                        Grand Total: 819.00

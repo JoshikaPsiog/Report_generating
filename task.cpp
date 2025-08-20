@@ -5,7 +5,7 @@
 #include <random>
 #include <ctime>
 #include <iomanip>
-#include <bits/stdc++.h>
+#include <map>
 using namespace std;
 
 void inputs();
@@ -25,67 +25,52 @@ bool compareByDate(const Sale &a, const Sale &b) {
 void sortRecords(vector<Sale> &records) {
     sort(records.begin(), records.end(), compareByDate);
 }
-
 void generateReport() {
     ifstream file("temp.csv");
     if (!file) {
         cerr << "Error: temp.csv not found!" << endl;
         return;
     }
-
     map<string, vector<Sale>> salesByDate;
     string line;
-
     while (getline(file, line)) {
         stringstream ss(line);
         Sale s;
         string priceStr, qtyStr, totalStr;
-
         getline(ss, s.id, ',');
         getline(ss, s.date, ',');
         getline(ss, s.item, ',');
         getline(ss, priceStr, ',');
         getline(ss, qtyStr, ',');
         getline(ss, totalStr, ',');
-
         s.price = stod(priceStr);
         s.qty = stoi(qtyStr);
         s.total = stod(totalStr);
-
         salesByDate[s.date].push_back(s);
     }
-
     file.close();
-
     ofstream out("Report.txt");
     if (!out) {
         cerr << "Error creating Report.txt!" << endl;
         return;
     }
-
     time_t now = time(0);
 tm *ltm = localtime(&now);
 char today[11];
 strftime(today, sizeof(today), "%Y-%m-%d", ltm);
-
 out << "Report Genrated Date " << today << "\n\n";
     out << "Sales Report : Stationary Items Sold\n\n";
-    // cout << string(70, '-') << endl;
     out << left << setw(18) << "Date"
         << setw(15) << "SaleID"
         << setw(20) << "ItemName"
         << setw(12) << "Quantity"
         << setw(12) << "Price"
         << setw(15) << "SalesAmount" << "\n";
-    //  cout << string(70, '-') << endl;
     double grandTotal = 0;
-
     for (const auto& pair : salesByDate) {
         const string& date = pair.first;
         const vector<Sale>& sales = pair.second;
-
         double subTotal = 0;
-
         for (const Sale& s : sales) {
             out << left << setw(18) << s.date
                 << setw(15) << s.id
@@ -93,13 +78,9 @@ out << "Report Genrated Date " << today << "\n\n";
                 << setw(12) << s.qty
                 << setw(12) << fixed << setprecision(2) << s.price
                 << setw(15) << fixed << setprecision(2) << s.total << "\n";
-
             subTotal += s.total;
         }
-
-        // out << string(70, '-') << endl;
         out << right << setw(85) << "Subtotal for " << date << " is : " << fixed << setprecision(2) << subTotal << "\n";
-        //  out << string(70, '-') << endl;
         grandTotal += subTotal;
     }
     out << right << setw(85) << "Grand Total: " << fixed << setprecision(2) << grandTotal << "\n";
@@ -118,31 +99,25 @@ void updateOrDelete() {
     vector<Sale> records;
     string line;
     bool found = false;
-
     while (getline(in, line)) {
         stringstream ss(line);
         Sale s;
         string priceStr, qtyStr, totalStr;
-
         getline(ss, s.id, ',');
         getline(ss, s.date, ',');
         getline(ss, s.item, ',');
         getline(ss, priceStr, ',');
         getline(ss, qtyStr, ',');
         getline(ss, totalStr, ',');
-
         s.price = stod(priceStr);
         s.qty = stoi(qtyStr);
         s.total = stod(totalStr);
-
         if (s.id == saleID) {
             found = true;
             cout << "Record found: " << line << endl;
-
             char choice;
             cout << "Do you want to (U)pdate or (D)elete this record? ";
             cin >> choice;
-
             if (choice == 'U' || choice == 'u') {
                 cout << "Enter Date (YYYY/MM/DD): ";
                 cin >> s.date;
@@ -191,18 +166,15 @@ void view() {
          << setw(10) << "Quantity"
          << setw(10) << "Total" << endl;
     cout << string(70, '-') << endl;
-
     while (getline(file, line)) {
         stringstream ss(line);
         string saleID, date, itemName, unitPrice, quantity, total;
-
         getline(ss, saleID, ',');
         getline(ss, date, ',');
         getline(ss, itemName, ',');
         getline(ss, unitPrice, ',');
         getline(ss, quantity, ',');
         getline(ss, total, ',');
-
         cout << left << setw(10) << saleID
              << setw(12) << date
              << setw(15) << itemName
@@ -217,12 +189,10 @@ int generateUniqueID()
     static random_device rd;
     static mt19937 gen(rd());
     uniform_int_distribution<> dist(1000, 9999); 
-
     int id;
     do {
         id = dist(gen);
     } while (find(usedIDs.begin(), usedIDs.end(), id) != usedIDs.end());
-
     usedIDs.push_back(id);
     return id;
 }
@@ -241,17 +211,14 @@ bool isValidDateFormat(const string &date)
     }
     return true;
 }
-
 void inputs()
 {
     char input;
     string date, item_name;
     double unit_Price, total;
     int item_quantity;
-
     cout << " Enter Unit Price Date (YYYY/MM/DD) :";
     getline(cin, date);
-
     if (!isValidDateFormat(date))
     {
         cout << "invalid date";
@@ -264,24 +231,19 @@ void inputs()
     cin >> unit_Price;
     cout << "Enter Item Quantity: ";
     cin >> item_quantity;
-    cin.ignore();
     total = item_quantity * unit_Price;
       int sales_id = generateUniqueID();
-
     ofstream file("sales.csv", ios::app);
     if (!file)
     {
-        cerr << "Error opening sales.csv\n";
+        cout << "Error opening sales.csv\n";
         return;
     }
-
     file<< sales_id << "," << date << "," << item_name << "," << unit_Price << "," << item_quantity << "," << total << "\n";
     file.close();
-
     cout << "do you want to continue?(y/n): ";
     cin >> input;
     cin.ignore();
-
     if (input == 'Y' || input == 'y')
     {
         inputs();
@@ -290,7 +252,6 @@ void inputs()
         view();
     }
 }
-
 void getdata()
 {
     ifstream checkFile("sales.csv");
@@ -300,14 +261,11 @@ void getdata()
         createFile.close();
     }
     checkFile.close();
-
     inputs();
 }
-
 int main() {
     char input;
     getdata();
-
     cout << "Do you want to update or delete? (y/n): ";
     cin >> input;
     if (input == 'y' || input == 'Y') {
