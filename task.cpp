@@ -196,21 +196,49 @@ int generateUniqueID()
     usedIDs.push_back(id);
     return id;
 }
-bool isValidDateFormat(const string &date)
-{
+bool isLeapYear(int year) {
+    // A year is a leap year if:
+    return (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+}
+
+bool isValidDateFormat(const std::string& date) {
     if (date.length() != 10)
         return false;
     if (date[4] != '/' || date[7] != '/')
         return false;
-    for (int i = 0; i < date.length(); ++i)
-    {
-        if (i == 4 || i == 7)
+
+    // Check if all characters except '/' are digits
+    for (int i = 0; i < date.length(); ++i) {
+        if (i == 4 || i == 7) 
             continue;
         if (!isdigit(date[i]))
             return false;
     }
+
+    // Extract the day, month, and year from the string
+    int day = std::stoi(date.substr(0, 2));
+    int month = std::stoi(date.substr(3, 2));
+    int year = std::stoi(date.substr(6, 4));
+
+    // Validate the month
+    if (month < 1 || month > 12)
+        return false;
+
+    // Define the number of days in each month (non-leap year)
+    int daysInMonth[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+    // Adjust for February in case of a leap year
+    if (month == 2 && isLeapYear(year)) {
+        daysInMonth[1] = 29;
+    }
+
+    // Validate the day
+    if (day < 1 || day > daysInMonth[month - 1])
+        return false;
+
     return true;
 }
+
 void inputs()
 {
     char input;
@@ -221,7 +249,7 @@ void inputs()
     getline(cin, date);
     if (!isValidDateFormat(date))
     {
-        cout << "invalid date";
+        cout << "invalid date cant't enter datan"<<endl;
          view();
         return;
     }
@@ -266,7 +294,7 @@ void getdata()
 int main() {
     char input;
     getdata();
-    cout << "Do you want to update or delete? (y/n): ";
+    cout << "Do you want to update or delete? (y/n): "<<endl;
     cin >> input;
     if (input == 'y' || input == 'Y') {
         updateOrDelete();
@@ -276,6 +304,6 @@ int main() {
     if (input == 'y' || input == 'Y') {
         generateReport();
     }
-    cout << "Thank you for purchasing!" << endl;
+    cout << "Thank you !" << endl;
     return 0;
 }
